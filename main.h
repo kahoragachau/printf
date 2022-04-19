@@ -24,6 +24,7 @@ int intlen(int n);
 int uintlen(unsigned int n);
 void _strrev(char *s);
 
+
 int _printf(const char * const format, ...);
 int (*fmt(char c))(va_list); 
 
