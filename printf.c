@@ -1,80 +1,47 @@
 #include "main.h"
 
 /**
- * _printf - format and print data
- * @format: formats according to user specification
- * 
- * Return: size in bytes of the printed string
+ * _printf - produces output according to a format
+ * @format: format string containing the characters and the specifiers
+ * Description: this function will call the get_print() function that will
+ * determine which printing function to call depending on the conversion
+ * specifiers contained into fmt
+ * Return: length of the formatted output string
  */
-
-int _printf(const char * const format, ...)
+int _printf(const char *format, ...)
 {
-	va_list parameters;
-	unsigned int i;
-	int func;
+	int (*pfunc)(va_list, flags_t *);
+	const char *p;
+	va_list arguments;
+	flags_t flags = {0, 0, 0};
 
-	if (!format)
+	register int count = 0;
+
+	va_start(arguments, format);
+	if (!format || (format[0] == '%' && !format[1]))
 		return (-1);
-
-	va_start(parameters, format);
-	i = 0;
-	while (format[i])
+	if (format[0] == '%' && format[1] == ' ' && !format[2])
+		return (-1);
+	for (p = format; *p; p++)
 	{
-		if (format[i] == '%')
+		if (*p == '%')
 		{
-			if (!format[i + 1])
+			p++;
+			if (*p == '%')
 			{
-				_print(-1);
-				va_end(parameters);
-				return (-1);
+				count += _putchar('%');
+				continue;
 			}
-			func = fmt(format[i + 1])(parameters);
-			if (func == -1)
-			{
-				va_end(parameters);
-				return (-1);
-			}
-			else
-				i = i + 2;
-		}
-		else
-		{
-			_print(format[i]);
-			i++;
-		}
+			while (get_flag(*p, &flags))
+				p++;
+			pfunc = get_print(*p);
+			count += (pfunc)
+				? pfunc(arguments, &flags)
+				: _printf("%%%c", *p);
+		} else
+			count += _putchar(*p);
 	}
-	va_end(parameters);
-	return (_print(-1));
-}
-
-int _print(char c)
-{
-	static char buf[SIZE];
-	static int count, i, reset;
-
-	if (reset)
-	{
-		count = 0;
-		reset = 0;
-	}
-
-	if (c == -1)
-	{
-		i = 0;
-		reset = 1;
-		write(1, buf, SIZE);
-		return (count + 1);
-	}
-	else if (i >= SIZE)
-	{
-		write(1, buf, SIZE);
-		for (i = 0; i < SIZE; i++)
-			buf[i] = 0;
-		i = 0;
-		return (0);
-	}
-	
-	buf[i++] = c;
-	count++;
-	return (0);
+	_putchar(-1);
+	va_end(arguments);
+	return (count);
 }

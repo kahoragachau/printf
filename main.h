@@ -1,73 +1,76 @@
-#ifndef PRINTF
-#define PRINTF
+#ifndef MAIN_H
+#define MAIN_H
 
 #include <stdlib.h>
 #include <stdarg.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-
-#define SIZE 1024
-
-#define _FUNCTION_LIST { \
-			 	{"c", fmt_char},\
-			 	{"s", fmt_string},\
-			 	{"d", fmt_int},\
-			 	{"i", fmt_int},\
-			 	{"u", fmt_unsigned_int},\
-			 	{"%", fmt_percentage},\
-			 	{"b", fmt_bin},\
-			 	{"o", fmt_octal},\
-			 	{"x", fmt_hexa},\
-			 	{"X", fmt_HEXA},\
-			 	{"r", fmt_rev},\
-			 	{"p", fmt_pointer},\
-			 	{"S", fmt_string_S},\
-			 	{"R", fmt_rot13},\
-			 	{NULL, unknown}\
-			}	
-
-int _putchar(char c);
-int _print(char c);
-int _strlen(char *s);
-int intlen(int n);
-int uintlen(unsigned int n);
-void _strrev(char *s);
-
-int _printf(const char * const format, ...);
-int (*fmt(char c))(va_list); 
-
-int fmt_char(va_list value);
-int fmt_string(va_list value);
-int fmt_int(va_list value);
-int fmt_unsigned_int(va_list value);
-int fmt_percentage(va_list value);
-int fmt_bin(va_list value);
-int fmt_octal(va_list value);
-int fmt_hexa(va_list value);
-int fmt_HEXA(va_list value);
-int fmt_pointer(va_list value);
-int fmt_string_S(va_list value);
-int fmt_S_HEXA(unsigned int data);
-int fmt_rot13(va_list value);
-int fmt_rev(va_list value);
-
-int power(int base, unsigned int exponent);
-int _abs(int n);
-
-int unknown(void);
-int output_error(void);
 
 /**
- * struct pointer_s - holds the pointer to a function required by _printf
- * @specifier: format specifier
- * @func: pointer to the function
+ * struct flags - struct containing flags to "turn on"
+ * when a flag specifier is passed to _printf()
+ * @plus: flag for the '+' character
+ * @space: flag for the ' ' character
+ * @hash: flag for the '#' character
  */
-typedef struct pointer_s
+typedef struct flags
 {
-	char *specifier;
-	int (*func)();
-} pointer_t;
+	int plus;
+	int space;
+	int hash;
+} flags_t;
+
+/**
+ * struct printHandler - struct to choose the right function depending
+ * on the format specifier passed to _printf()
+ * @c: format specifier
+ * @f: pointer to the correct printing function
+ */
+typedef struct printHandler
+{
+	char c;
+	int (*f)(va_list ap, flags_t *f);
+} ph;
+
+/* print_nums */
+int print_int(va_list l, flags_t *f);
+void print_number(int n);
+int print_unsigned(va_list l, flags_t *f);
+int count_digit(int i);
+
+/* print_bases */
+int print_hex(va_list l, flags_t *f);
+int print_hex_big(va_list l, flags_t *f);
+int print_binary(va_list l, flags_t *f);
+int print_octal(va_list l, flags_t *f);
+
+/* converter */
+char *convert(unsigned long int num, int base, int lowercase);
+
+/* _printf */
+int _printf(const char *format, ...);
+
+/* get_print */
+int (*get_print(char s))(va_list, flags_t *);
+
+/* get_flag */
+int get_flag(char s, flags_t *f);
+
+/* print_alpha */
+int print_string(va_list l, flags_t *f);
+int print_char(va_list l, flags_t *f);
+
+/* write_funcs */
+int _putchar(char c);
+int _puts(char *str);
+
+/* print_custom */
+int print_rot13(va_list l, flags_t *f);
+int print_rev(va_list l, flags_t *f);
+int print_bigS(va_list l, flags_t *f);
+
+/* print_address */
+int print_address(va_list l, flags_t *f);
+
+/* print_percent */
+int print_percent(va_list l, flags_t *f);
 
 #endif
