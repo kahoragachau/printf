@@ -1,48 +1,40 @@
-
 #include "main.h"
+#include <stdio.h>
 
 /**
- * _printf - produces output according to a format
- * @format: format string containing the characters and the specifiers
- * Description: this function will call the get_print() function that will
- * determine which printing function to call depending on the conversion
- * specifiers contained into fmt
- * Return: length of the formatted output string
+ * _printf - Function to work like a printf function
+ * @format: the format of printing character
+ * Return: result.
  */
 int _printf(const char *format, ...)
 {
-	int (*pfunc)(va_list, flags_t *);
-	const char *p;
-	va_list arguments;
-	flags_t flags = {0, 0, 0};
+	va_list valist;
+	unsigned int i = 0;
+	unsigned int result = 0;
 
-	register int count = 0;
-
-	va_start(arguments, format);
-	if (!format || (format[0] == '%' && !format[1]))
-		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
-	for (p = format; *p; p++)
+	if (format == NULL)
 	{
-		if (*p == '%')
-		{
-			p++;
-			if (*p == '%')
-			{
-				count += _putchar('%');
-				continue;
-			}
-			while (get_flag(*p, &flags))
-				p++;
-			pfunc = get_print(*p);
-			count += (pfunc)
-				? pfunc(arguments, &flags)
-				: _printf("%%%c", *p);
-		} else
-			count += _putchar(*p);
+		return (-1);
 	}
-	_putchar(-1);
-	va_end(arguments);
-	return (count);
+	va_start(valist, format);
+
+	for (i = 0; format[i] != '\0'; i++)
+	{
+		if (format[i] == '\0' || (format[i] == '%' && !format[i + 1]))
+		{
+			return (-1);
+		}
+		else if (format[i] == '%' && (format[i + 1] == 'd' || format[i + 1] == 'i' ||
+					format[i + 1] == 's' || format[i + 1] == 'c' || format[i + 1] == '%'))
+		{
+			result += (*format_conversion(format[i + 1]))(valist);
+			i++;
+		}
+		else
+		{
+			result += _putchar(format[i]);
+		}
+	}
+	va_end(valist);
+	return (result);
 }
