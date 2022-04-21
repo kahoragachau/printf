@@ -4,12 +4,12 @@
 
 /**
  * print_char - function to get character variable
- * @charlist: characters to be printed
+ * @charList: characters to be printed
  * Return: the list of character
  */
 int print_char(va_list charList)
 {
 	char c = va_arg(charList, int);
 
-	return(_putchar(c));
+	return (_putchar(c));
 }
